@@ -1,4 +1,4 @@
-/* MYSTIC RUN – HAUNTED FOREST
+/* MYSTIC-RUN – HAUNTED FOREST
  * Core 3D Endless Runner Engine & Game Loop
  */
 

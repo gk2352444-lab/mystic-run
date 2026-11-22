@@ -1,4 +1,4 @@
-/* MYSTIC RUN – HAUNTED FOREST
+/* MYSTIC-RUN – HAUNTED FOREST
  * Infinite Procedural Track & Chunk Manager
  * Object pooling and fair obstacle generation for endless runner gameplay.
  */

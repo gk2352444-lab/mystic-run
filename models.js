@@ -1,4 +1,4 @@
-/* MYSTIC RUN – FANTASY TRAIL
+/* MYSTIC-RUN – FANTASY TRAIL
  * 3D Procedural Models & Procedural Asset Builder
  * Original Trail Warden character and Cinder Warden models built from procedural geometry.
  * Optimized for mobile GPUs with shared geometries, lightweight materials & low draw calls.

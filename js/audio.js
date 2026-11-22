@@ -1,4 +1,4 @@
-/* MYSTIC RUN – HAUNTED FOREST
+/* MYSTIC-RUN – HAUNTED FOREST
  * Web Audio API Procedural Sound Engine
  * Zero external audio files required, 100% reliable on all mobile & desktop browsers.
  */

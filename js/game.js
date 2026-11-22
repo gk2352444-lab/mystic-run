@@ -1,4 +1,4 @@
-/* MYSTIC RUN – HAUNTED FOREST
+/* MYSTIC-RUN – HAUNTED FOREST
  * Core 3D Endless Runner Engine & Game Loop
  */
 
@@ -1013,7 +1013,7 @@ class MysticRunGame {
       this.playerVY = 0;
       this.isJumping = false;
     }
-    this.showFloatingBanner('BACK TO MYSTIC RUN!');
+    this.showFloatingBanner('BACK TO MYSTIC-RUN!');
     this.updateModeHUD();
   }
 
@@ -1574,6 +1574,7 @@ class MysticRunGame {
     this.updateEnvironmentTheme();
     this.updateMonsterEncounters(delta, time);
     this.updateAdventureRoute(delta);
+    if (this.state !== 'PLAYING') return;
 
     // 7. Update Track & Recycled Chunks
     this.trackManager.update(this.player.position.z, time, this.speed, this.difficultyLevel);
@@ -1685,6 +1686,7 @@ class MysticRunGame {
         }
       }
     }
+    if (this.state !== 'PLAYING') return;
 
     if (this.activeEncounter && !this.activeEncounter.userData.passed && this.state === 'PLAYING') {
       const encounter = this.activeEncounter;
@@ -1696,6 +1698,7 @@ class MysticRunGame {
         this.handleObstacleHit(encounter);
       }
     }
+    if (this.state !== 'PLAYING') return;
 
     // 2. Collectibles Sweep (Coins & Soul Diamonds)
     for (let i = this.trackManager.activeCollectibles.length - 1; i >= 0; i--) {
@@ -1828,7 +1831,7 @@ class MysticRunGame {
     this.scoreValEl.textContent = this.score.toLocaleString();
     this.coinValEl.textContent = this.coins.toLocaleString();
     this.diamondValEl.textContent = this.diamonds.toLocaleString();
-    this.speedValEl.textContent = `${this.speed.toFixed(0)} KM/H`;
+    this.speedValEl.textContent = `${(this.speed * 3.6).toFixed(0)} KM/H`;
     this.updateModeHUD();
   }
 

@@ -1,4 +1,4 @@
-/* MYSTIC RUN – FANTASY TRAIL
+/* MYSTIC-RUN – FANTASY TRAIL
  * 3D Procedural Models & Procedural Asset Builder
  * Original Trail Warden character and Cinder Warden models built from procedural geometry.
  * Optimized for mobile GPUs with shared geometries, lightweight materials & low draw calls.
@@ -1269,11 +1269,24 @@ const ModelFactory = (() => {
     },
 
     applyPlayerCosmetics(player, colors) {
+      const cosmeticMaterials = player.userData.cosmeticMaterials ||
+        (player.userData.cosmeticMaterials = new Map());
       player.traverse(object => {
         const slot = object.userData.storeColor;
-        if (slot && colors[slot] && object.material && object.material.color) {
-          object.material.color.set(colors[slot]);
+        if (!slot || !colors[slot] || !object.material || !object.material.color) return;
+
+        const sourceMaterial = object.userData.cosmeticSourceMaterial || object.material;
+        object.userData.cosmeticSourceMaterial = sourceMaterial;
+        let slotMaterials = cosmeticMaterials.get(slot);
+        if (!slotMaterials) {
+          slotMaterials = new Map();
+          cosmeticMaterials.set(slot, slotMaterials);
         }
+        if (!slotMaterials.has(sourceMaterial)) {
+          slotMaterials.set(sourceMaterial, sourceMaterial.clone());
+        }
+        object.material = slotMaterials.get(sourceMaterial);
+        object.material.color.set(colors[slot]);
       });
     },
 

@@ -1,4 +1,4 @@
-/* MYSTIC RUN – HAUNTED FOREST
+/* MYSTIC-RUN – HAUNTED FOREST
  * Mobile Touch, Swipe & Keyboard Input Handler
  * Optimized for low-latency responsiveness and Android mobile browser compatibility.
  */
