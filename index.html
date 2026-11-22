@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>MYSTIC RUN — Fantasy Trail Adventure</title>
+  <meta name="application-name" content="MYSTIC RUN">
+  <meta name="description" content="Run, leap and explore a magical endless trail in Mystic Run.">
+  <meta property="og:title" content="MYSTIC RUN">
+  <meta property="og:description" content="A colorful fantasy ninja endless-runner adventure.">
+  <meta property="og:image" content="assets/mystic-run-logo.svg">
+
+  <!-- Mobile Browser & WebApp Optimization -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#060c14">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <div id="loading-screen" aria-label="Loading Mystic Run">
+    <img class="brand-logo loading-logo" src="assets/mystic-run-logo.svg" alt="MYSTIC RUN">
+    <p>PREPARING THE MYSTIC TRAIL</p>
+    <span class="loading-orbit" aria-hidden="true"></span>
+  </div>
+
+  <div id="game-container">
+    <!-- 3D Canvas -->
+    <canvas id="webgl-canvas"></canvas>
+
+    <!-- In-Game HUD -->
+    <div id="hud" class="ui-layer">
+      <div class="hud-left">
+        <div class="stat-badge score-badge">
+          <span class="stat-icon">🏃</span>
+          <span id="hud-score" class="stat-value">0</span>
+        </div>
+        <div class="stat-badge coin-badge">
+          <span class="stat-icon">🪙</span>
+          <span id="hud-coins" class="stat-value">0</span>
+        </div>
+        <div class="stat-badge diamond-badge">
+          <span class="stat-icon">💎</span>
+          <span id="hud-diamonds" class="stat-value">0</span>
+        </div>
+        <div id="health-badge" class="stat-badge health-badge">
+          <span class="stat-icon">❤️</span>
+          <span id="hud-health" class="stat-value">3</span>
+        </div>
+      </div>
+
+      <div class="hud-center">
+        <div class="speed-meter">
+          <span>⚡</span>
+          <span id="hud-speed">20 KM/H</span>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <button id="btn-skateboard" class="hud-btn mode-btn" title="Activate skateboard (12s)" aria-label="Activate skateboard">🛹</button>
+        <button id="btn-airplane" class="hud-btn mode-btn airplane-btn" title="Activate airplane (10s)" aria-label="Activate airplane">✈️</button>
+        <button id="btn-speed-boost" class="hud-btn boost-btn" title="Activate speed boost" aria-label="Activate speed boost">⚡</button>
+        <button id="btn-mute" class="hud-btn" title="Toggle Sound">🔊</button>
+        <button id="btn-pause" class="hud-btn" title="Pause Game">⏸</button>
+        <button id="btn-fullscreen" class="hud-btn" title="Fullscreen">⛶</button>
+      </div>
+    </div>
+
+    <div id="mode-status" class="mode-status" aria-live="polite"></div>
+    <div id="route-prompt" class="route-prompt" aria-live="polite"></div>
+
+    <!-- Beast Proximity Alert Banner -->
+    <div id="beast-warning">⚠️ CINDER WARDEN APPROACHING! ⚠️</div>
+
+    <!-- Floating Event Banner -->
+    <div id="floating-banner">NEW RECORD!</div>
+
+    <!-- Virtual Mobile Touch Controls Overlay -->
+    <div id="touch-controls" class="ui-layer" style="justify-content: space-between;">
+      <!-- Left / Right Cluster -->
+      <div class="touch-cluster">
+        <button id="btn-left" class="touch-btn action-left" aria-label="Move Left">
+          <svg viewBox="0 0 24 24">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+          </svg>
+          <span class="btn-label">LEFT</span>
+        </button>
+        <button id="btn-right" class="touch-btn action-right" aria-label="Move Right">
+          <svg viewBox="0 0 24 24">
+            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+          </svg>
+          <span class="btn-label">RIGHT</span>
+        </button>
+      </div>
+
+      <!-- Jump / Slide Cluster -->
+      <div class="touch-cluster">
+        <button id="btn-slide" class="touch-btn action-slide" aria-label="Slide Down">
+          <svg viewBox="0 0 24 24">
+            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+          </svg>
+          <span class="btn-label">SLIDE</span>
+        </button>
+        <button id="btn-jump" class="touch-btn action-jump" aria-label="Jump Up">
+          <svg viewBox="0 0 24 24">
+            <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
+          </svg>
+          <span class="btn-label">JUMP</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- INTRO & TITLE SCREEN -->
+    <div id="intro-screen" class="screen-overlay active">
+      <div class="menu-card">
+        <img class="brand-logo intro-logo" src="assets/mystic-run-logo.svg" alt="MYSTIC RUN">
+        <h1 class="game-title">MYSTIC RUN</h1>
+        <div class="game-subtitle">FANTASY TRAIL ADVENTURE</div>
+
+        <p class="story-intro">
+          Follow the star-lit trail through enchanted forests, ancient ruins and volcanic passes. Dash past the
+          Cinder Warden, leap fallen stones, and discover how far your mystic runner can go.
+        </p>
+
+        <!-- High Score Badge -->
+        <div class="stat-box highlight" style="width: 100%; margin-bottom: 16px;">
+          <span class="label">BEST SURVIVAL SCORE</span>
+          <span id="intro-highscore" class="value">0</span>
+        </div>
+
+        <!-- Controls Guide -->
+        <div class="tutorial-box">
+          <div class="tutorial-title">
+            <span>⚔️</span> HOW TO SURVIVE
+          </div>
+          <div class="tut-row">
+            <span>Switch Lanes</span>
+            <span class="tut-key">Swipe L / R or Tap Arrows</span>
+          </div>
+          <div class="tut-row">
+            <span>Jump Logs & Spikes</span>
+            <span class="tut-key">Swipe UP or Tap JUMP</span>
+          </div>
+          <div class="tut-row">
+            <span>Slide Under Arches</span>
+            <span class="tut-key">Swipe DOWN or Tap SLIDE</span>
+          </div>
+          <div class="tut-row">
+            <span>Vehicles</span>
+            <span class="tut-key">Tap 🛹 / ✈️ or press Q / E</span>
+          </div>
+          <div class="tut-row">
+            <span>Mystic Surge</span>
+            <span class="tut-key">Tap ⚡ or press R (equip first)</span>
+          </div>
+          <div class="tut-row">
+            <span>Collect Gems & Coins</span>
+            <span class="tut-key">🪙 +10 pts | 💎 +50 pts</span>
+          </div>
+        </div>
+
+        <div class="home-actions">
+          <button id="btn-start-game" class="btn-primary">START</button>
+          <button id="btn-open-store" class="btn-store">
+            <span class="store-button-icon">🛍️</span>
+            <span>OPEN MYSTIC STORE</span>
+            <span class="store-wallet">🪙 <span id="home-wallet">0</span></span>
+          </button>
+          <button id="btn-open-missions" class="btn-secondary">🎯 MISSIONS &amp; UPGRADES</button>
+        </div>
+
+        <!-- Settings Options -->
+        <div class="settings-row">
+          <button id="btn-toggle-sound" class="btn-setting active" aria-pressed="true">
+            <span>🔊</span> <span class="btn-text">Sound: ON</span>
+          </button>
+          <button id="btn-toggle-quality" class="btn-setting">
+            <span>⚙️</span> <span class="btn-text">Graphics: HIGH</span>
+          </button>
+          <button id="btn-toggle-touch" class="btn-setting active">
+            <span>🎮</span> <span class="btn-text">Touch Buttons: ON</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="store-screen" class="screen-overlay store-screen" role="dialog" aria-modal="true" aria-labelledby="store-title">
+      <div class="store-card">
+        <header class="store-header">
+          <div>
+            <p class="store-kicker">MYSTIC RUN · ADVENTURE GEAR</p>
+            <h2 id="store-title" class="game-title">MYSTIC STORE</h2>
+          </div>
+          <div class="store-header-actions">
+            <div class="store-wallet-large">🪙 <span id="store-wallet">0</span></div>
+            <button id="btn-close-store" class="hud-btn store-close" aria-label="Close store">✕</button>
+          </div>
+        </header>
+        <nav id="store-tabs" class="store-tabs" aria-label="Store categories">
+          <button class="store-tab active" data-store-category="characters">🥷 Characters</button>
+          <button class="store-tab" data-store-category="skins">🎨 Skins</button>
+          <button class="store-tab" data-store-category="skateboards">🛹 Skateboards</button>
+          <button class="store-tab" data-store-category="airplanes">✈️ Airplanes</button>
+          <button class="store-tab" data-store-category="powerups">⚡ Power-ups</button>
+        </nav>
+        <p id="store-message" class="store-message" aria-live="polite">Starter gear is free. Collect coins during runs to unlock more!</p>
+        <div id="store-items" class="store-items"></div>
+      </div>
+    </div>
+
+    <div id="mode-screen" class="screen-overlay mode-screen" role="dialog" aria-modal="true" aria-labelledby="mode-title">
+      <div class="mode-select-card">
+        <header class="mode-select-header">
+          <p class="store-kicker">MYSTIC RUN · PICK YOUR CHALLENGE</p>
+          <h2 id="mode-title" class="game-title">GAME MODES</h2>
+        </header>
+        <div class="mode-options">
+          <button class="mode-option selected" data-game-mode="classic">
+            <span class="mode-option-icon">🏃</span>
+            <span class="mode-option-name">Classic</span>
+            <span class="mode-option-description">Run, dodge and collect as usual.</span>
+          </button>
+          <button class="mode-option" data-game-mode="monster-chase">
+            <span class="mode-option-icon">👹</span>
+            <span class="mode-option-name">Monster Chase</span>
+            <span class="mode-option-description">A hunter stays close; warning encounters approach ahead.</span>
+          </button>
+          <button class="mode-option" data-game-mode="survival">
+            <span class="mode-option-icon">❤️</span>
+            <span class="mode-option-name">Survival</span>
+            <span class="mode-option-description">Three hearts. Survive as long as you can.</span>
+          </button>
+          <button class="mode-option" data-game-mode="adventure">
+            <span class="mode-option-icon">🧭</span>
+            <span class="mode-option-name">Adventure</span>
+            <span class="mode-option-description">Choose a fork; follow the green marker to escape monsters.</span>
+          </button>
+        </div>
+        <div class="mode-select-actions">
+          <button id="btn-mode-back" class="btn-secondary">BACK</button>
+          <button id="btn-mode-start" class="btn-primary">START RUN</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="mission-screen" class="screen-overlay mission-screen" role="dialog" aria-modal="true" aria-labelledby="mission-title">
+      <div class="mission-card">
+        <header class="mission-header">
+          <div>
+            <p class="store-kicker">MYSTIC RUN · RUN, EARN, IMPROVE</p>
+            <h2 id="mission-title" class="game-title">MISSIONS &amp; UPGRADES</h2>
+          </div>
+          <div class="mission-header-actions">
+            <div class="store-wallet-large">🪙 <span id="mission-wallet">0</span></div>
+            <button id="btn-close-missions" class="hud-btn store-close" aria-label="Close missions">✕</button>
+          </div>
+        </header>
+        <nav class="progress-tabs" aria-label="Progress categories">
+          <button class="progress-tab active" data-progress-tab="missions">🎯 Missions</button>
+          <button class="progress-tab" data-progress-tab="upgrades">⬆️ Upgrades</button>
+        </nav>
+        <div id="mission-list" class="mission-list"></div>
+      </div>
+    </div>
+
+    <!-- PAUSE SCREEN -->
+    <div id="pause-screen" class="screen-overlay">
+      <div class="menu-card">
+        <img class="brand-logo compact-logo" src="assets/mystic-run-logo.svg" alt="MYSTIC RUN">
+        <h2 class="game-title" style="font-size: 1.8rem;">GAME PAUSED</h2>
+        <div class="game-subtitle" style="margin-bottom: 24px;">CATCH YOUR BREATH</div>
+
+        <button id="btn-resume" class="btn-primary">RESUME RUN</button>
+        <button id="btn-pause-restart" class="btn-secondary">RESTART RUN</button>
+        <button id="btn-pause-menu" class="btn-secondary">MAIN MENU</button>
+      </div>
+    </div>
+
+    <!-- GAME OVER SCREEN -->
+    <div id="gameover-screen" class="screen-overlay">
+      <div class="menu-card">
+        <img class="brand-logo compact-logo" src="assets/mystic-run-logo.svg" alt="MYSTIC RUN">
+        <div class="gameover-skull">💀</div>
+        <h2 class="game-title gameover-title">RUN ENDED</h2>
+        <div class="game-subtitle">THE MIST CALLS YOU BACK</div>
+
+        <div id="go-record-badge"
+          style="display:none; color: var(--accent-gold); font-weight: 800; font-size: 0.85rem; letter-spacing: 2px; margin-bottom: 12px;">
+          ★ NEW RECORD ACHIEVED! ★
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <span class="label">DISTANCE</span>
+            <span id="go-distance" class="value">0m</span>
+          </div>
+          <div class="stat-box">
+            <span class="label">COINS</span>
+            <span id="go-coins" class="value">0</span>
+          </div>
+          <div class="stat-box highlight" style="grid-column: span 2;">
+            <span class="label">FINAL SCORE</span>
+            <span id="go-score" class="value" style="font-size: 1.6rem;">0</span>
+          </div>
+          <div class="stat-box" style="grid-column: span 2;">
+            <span class="label">ALL-TIME BEST</span>
+            <span id="go-highscore" class="value">0</span>
+          </div>
+        </div>
+
+        <button id="btn-restart" class="btn-primary">RUN AGAIN</button>
+        <button id="btn-menu" class="btn-secondary">MAIN MENU</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Three.js Library (Local offline bundle with CDN fallback) -->
+  <script src="js/three.min.js"></script>
+  <script>
+    if (typeof THREE === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+    }
+  </script>
+
+  <!-- Game Modules -->
+  <script src="js/audio.js"></script>
+  <script src="js/models.js"></script>
+  <script src="js/track.js"></script>
+  <script src="js/controls.js"></script>
+  <script src="js/game.js"></script>
+  <script>
+    window.addEventListener('load', function () {
+      const loadingScreen = document.getElementById('loading-screen');
+      if (loadingScreen) loadingScreen.classList.add('is-hidden');
+    });
+  </script>
+
+</body>
+
+</html>
